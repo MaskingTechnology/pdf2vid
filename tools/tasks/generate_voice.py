@@ -1,5 +1,4 @@
 
-import argparse
 from kokoro import KPipeline
 import soundfile
 import warnings

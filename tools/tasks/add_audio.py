@@ -1,5 +1,4 @@
 
-import argparse
 import ffmpeg
 
 def add_audio(video_file, audio_file, audio_delay, output_file):

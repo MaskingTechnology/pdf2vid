@@ -2,4 +2,4 @@ argparse
 ffmpeg-python
 kokoro
 soundfile
-Wand
+pdf2image

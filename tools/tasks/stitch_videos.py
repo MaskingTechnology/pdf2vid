@@ -1,8 +1,5 @@
 
-import argparse
 import ffmpeg
-import glob
-import os
 
 from utils.filesystem import join_paths
 

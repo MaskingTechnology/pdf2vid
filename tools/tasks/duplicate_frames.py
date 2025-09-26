@@ -1,6 +1,4 @@
 
-import argparse
-import glob
 import shutil
 
 def duplicate_frames(input_folder, output_folder, config):

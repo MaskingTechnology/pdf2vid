@@ -1,5 +1,4 @@
 
-import argparse
 import ffmpeg
 
 DEFAULT_FRAMERATE = 10

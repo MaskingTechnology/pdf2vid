@@ -18,7 +18,7 @@ The following tools are required:
 Install [HomeBrew](https://brew.sh/), and run the following commands in a terminal.
 
 ```bash
-brew install ffmpeg imagemagick ghostscript
+brew install ffmpeg poppler
 pip install -r requirements.txt
 ```
 
