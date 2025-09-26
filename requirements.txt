@@ -1,0 +1,5 @@
+argparse
+ffmpeg-python
+kokoro
+soundfile
+Wand
