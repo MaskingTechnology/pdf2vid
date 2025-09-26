@@ -30,15 +30,7 @@ The basic structure of a video is:
 1. **Chapter** - a group of related scenes covering one topic.
 1. **Video** - the full piece, made up of chapters.
 
-All three can be generated independently using the provided tools. Before diving into them, the required environment variables need to be set:
-
-```bash
-export MAGICK_HOME=$(brew --prefix imagemagick)
-export MAGICK_GS_PATH=/opt/homebrew/bin/gs
-export PYTORCH_ENABLE_MPS_FALLBACK=1
-```
-
-The tools are now ready for use.
+All three can be generated independently using the provided tool.
 
 ### Generating scenes
 

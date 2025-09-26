@@ -15,7 +15,7 @@ from utils.filesystem import join_paths, path_exists, copy_file, remove_file, cr
 CHAPTER_DEFAULT = "C1"
 SCENE_DEFAULT = "S1"
 VOICE_DEFAULTS = { "speed": 1.0, "delay": 0.0 }
-FRAMES_DEFAULTS = { "start": 0, "end": None, "duplications": "", "rate": 10 }
+FRAMES_DEFAULTS = { "start": None, "end": None, "duplications": "", "rate": 10 }
 
 ### PROCESS ##########################
 
@@ -23,7 +23,12 @@ def generate_scene(config_file, output_folder):
 
     config = _create_config(config_file, output_folder)
 
-    _initialize(config)
+    no_changes = _initialize(config)
+
+    if no_changes:
+        print("✔ No changes detected")
+        return
+    
     _generate(config)
     _finalize(config_file, config)
 
@@ -118,7 +123,9 @@ def _initialize(config):
     already_existed = _assure_folders(config)
 
     if already_existed:
-        _update_cache(config)
+        return _update_cache(config)
+
+    return False
 
 def _assure_folders(config):
 
@@ -133,7 +140,7 @@ def _update_cache(config):
     cached_config = _read_config_data(config.files.config)
 
     if cached_config == None:
-        return
+        return False
     
     cached_voice = _create_voice_options(cached_config)
     cached_frames = _create_frame_options(cached_config)
@@ -154,26 +161,23 @@ def _update_cache(config):
     if voice_text_changed or voice_speed_changed:
         remove_file(config.files.voice)
         result_changed = True
-        print("!!! REMOVED VOICE CACHE !!!")
     
     if frames_source_changed or frames_start_changed or frames_end_changed:
         remove_folder(config.folders.frames)
         frames_duplications_changed = True
-        print("!!! REMOVED FRAMES CACHE !!!")
     
     if frames_duplications_changed:
         remove_folder(config.folders.duplications)
         video_changed = True
-        print("!!! REMOVED DUPLICATES CACHE !!!")
     
     if video_changed:
         remove_file(config.files.video)
         result_changed = True
-        print("!!! REMOVED VIDEO CACHE !!!")
 
     if result_changed:
         remove_file(config.files.result)
-        print("!!! REMOVED RESULT CACHE !!!")
+
+    return not result_changed
 
 ### GENERATE ##########################
 
@@ -187,39 +191,34 @@ def _generate(config):
 
 def _voiceover(options, files):
 
-    print("STEP 1/5: GENERATING VOICE")
-
     if path_exists(files.voice):
-        print(f"✔ REUSED -> {files.voice}")
         return
     
+    print("∞ GENERATING VOICE")
+
     generate_voice(options.text, options.speed, files.voice)
 
     print(f"✔ GENERATED -> {files.voice}")
 
 def _frames(options, folders):
 
-    print("STEP 2/5: EXTRACTING FRAMES")
-
     if path_exists(folders.frames):
-        print(f"✔ REUSED -> {folders.frames}")
         return
     
-    pages = None if options.end == None else range(options.start, options.end)
+    print("∞ EXTRACTING FRAMES")
 
     create_folder(folders.frames)
-    extract_frames(options.source, folders.frames, pages)
+    extract_frames(options.source, folders.frames, options.start, options.end)
 
     print(f"✔ EXTRACTED -> {folders.frames}")
 
 def _duplications(options, folders):
 
-    print("STEP 3/5: DUPLICATING FRAMES")
-
     if path_exists(folders.duplications):
-        print(f"✔ REUSED -> {folders.duplications}")
         return
     
+    print("∞ DUPLICATING FRAMES")
+
     create_folder(folders.duplications)
     duplicate_frames(folders.frames, folders.duplications, options.duplications)
 
@@ -227,24 +226,22 @@ def _duplications(options, folders):
 
 def _video(frame_options, folders, files):
 
-    print("STEP 4/5: CREATING VIDEO")
-
     if path_exists(files.video):
-        print(f"✔ REUSED -> {files.video}")
         return
     
+    print("∞ CREATING VIDEO")
+
     create_video(folders.duplications, files.video, frame_options.rate)
 
     print(f"✔ CREATED -> {files.video}")
 
 def _result(voice_options, files):
 
-    print("STEP 5/5: COMBINING VIDEO AND VOICE")
-
     if path_exists(files.result):
-        print(f"✔ REUSED -> {files.result}")
         return
     
+    print("∞ COMBINING VIDEO AND VOICE")
+
     add_audio(files.video, files.voice, voice_options.delay, files.result)
 
     print(f"✔ COMBINED -> {files.result}")
