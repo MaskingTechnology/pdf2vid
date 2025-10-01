@@ -42,7 +42,7 @@ def _create_config(config_file, output_folder):
 
 def _create_folder_paths(output_folder, chapter):
 
-    cache_folder = join_paths(output_folder, "cache")
+    cache_folder = join_paths(output_folder, "chapters")
     chapter_folder = join_paths(cache_folder, chapter)
 
     return FolderPaths(

@@ -8,7 +8,7 @@ from tasks.add_audio import add_audio
 from models.scene import VoiceOptions, FrameOptions, FolderPaths, FilePaths, Config
 
 from utils.config import read_config
-from utils.filesystem import join_paths, path_exists, copy_file, remove_file, create_folder, remove_folder
+from utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, remove_file, create_folder, remove_folder
 
 ### DEFAULTS ##########################
 
@@ -42,7 +42,7 @@ def _create_config(config_file, output_folder):
     scene = data.get("scene", SCENE_DEFAULT)
     voice = _create_voice_options(data)
     frames = _create_frame_options(data)
-    folders = _create_folder_paths(output_folder, chapter, scene)
+    folders = _create_folder_paths(config_file, output_folder, chapter, scene)
     files = _create_file_paths(scene, folders)
 
     return Config(
@@ -88,14 +88,16 @@ def _create_frame_options(data):
         rate = frames.get("rate")
     )
 
-def _create_folder_paths(output_folder, chapter, scene):
+def _create_folder_paths(config_file, output_folder, chapter, scene):
 
-    chapter_folder = join_paths(output_folder, "cache", chapter)
-    scene_folder = join_paths(chapter_folder, "cache", scene)
+    config_folder = get_parent_path(config_file)
+    chapter_folder = join_paths(output_folder, "chapters", chapter)
+    scene_folder = join_paths(chapter_folder, "scenes", scene)
     frames_folder = join_paths(scene_folder, "frames")
     duplications_folder = join_paths(scene_folder, "_frames")
 
     return FolderPaths(
+        config = config_folder,
         chapter = chapter_folder,
         scene = scene_folder,
         frames = frames_folder,
@@ -194,57 +196,58 @@ def _voiceover(options, files):
     if path_exists(files.voice):
         return
     
-    print("∞ GENERATING VOICE")
+    print("∞ GENERATING VOICE", end="\r", flush=True)
 
     generate_voice(options.text, options.speed, files.voice)
 
-    print(f"✔ GENERATED -> {files.voice}")
+    print(f"✔ GENERATED VOICE -> {files.voice}")
 
 def _frames(options, folders):
 
     if path_exists(folders.frames):
         return
     
-    print("∞ EXTRACTING FRAMES")
+    print("∞ EXTRACTING FRAMES", end="\r", flush=True)
 
     create_folder(folders.frames)
-    extract_frames(options.source, folders.frames, options.start, options.end)
+    pdf_file = join_paths(folders.config, options.source)
+    extract_frames(pdf_file, folders.frames, options.start, options.end)
 
-    print(f"✔ EXTRACTED -> {folders.frames}")
+    print(f"✔ EXTRACTED FRAMES -> {folders.frames}")
 
 def _duplications(options, folders):
 
     if path_exists(folders.duplications):
         return
     
-    print("∞ DUPLICATING FRAMES")
+    print("∞ DUPLICATING FRAMES", end="\r", flush=True)
 
     create_folder(folders.duplications)
     duplicate_frames(folders.frames, folders.duplications, options.duplications)
 
-    print(f"✔ DUPLICATED -> {folders.duplications}")
+    print(f"✔ DUPLICATED FRAMES -> {folders.duplications}")
 
 def _video(frame_options, folders, files):
 
     if path_exists(files.video):
         return
     
-    print("∞ CREATING VIDEO")
+    print("∞ CREATING VIDEO", end="\r", flush=True)
 
     create_video(folders.duplications, files.video, frame_options.rate)
 
-    print(f"✔ CREATED -> {files.video}")
+    print(f"✔ CREATED VIDEO -> {files.video}")
 
 def _result(voice_options, files):
 
     if path_exists(files.result):
         return
     
-    print("∞ COMBINING VIDEO AND VOICE")
+    print("∞ COMBINING VIDEO AND VOICE", end="\r", flush=True)
 
     add_audio(files.video, files.voice, voice_options.delay, files.result)
 
-    print(f"✔ COMBINED -> {files.result}")
+    print(f"✔ COMBINED VIDEO AND VOICE -> {files.result}")
 
 ### FINALIZE ##########################
 

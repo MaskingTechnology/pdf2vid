@@ -17,6 +17,7 @@ class FrameOptions:
 
 @dataclass(frozen=True)
 class FolderPaths:
+    config: str
     chapter: str
     scene: str
     frames: str

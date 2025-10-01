@@ -3,6 +3,9 @@ from pathlib import Path
 import shutil
 import os
 
+def get_parent_path(file_path):
+    return Path(file_path).parent
+
 def join_paths(*paths):
     return os.path.join(*paths)
 
