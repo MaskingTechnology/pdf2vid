@@ -62,8 +62,8 @@ def _create_file_paths(chapter, folders):
 
 def _generate(config):
 
-    print("GENERATING CHAPTER")
+    print("∞ GENERATING CHAPTER", end="\r", flush=True)
 
     stitch_videos(config.folders.chapter, config.scenes, config.files.result)
 
-    print(f"✔ {config.files.result}")
+    print(f"✔ GENERATED CHAPTER -> {config.files.result}")

@@ -61,8 +61,8 @@ def _create_file_paths(video, folders):
 
 def _generate(config):
 
-    print("GENERATING VIDEO")
+    print("∞ GENERATING VIDEO", end="\r", flush=True)
 
     stitch_videos(config.folders.cache, config.chapters, config.files.result)
 
-    print(f"✔ {config.files.result}")
+    print(f"✔ GENERATED VIDEO -> {config.files.result}")
