@@ -3,7 +3,7 @@ from kokoro import KPipeline
 import soundfile
 import warnings
 
-VOICE = 'am_fenrir'
+VOICE = 'af_heart'
 
 warnings.filterwarnings("ignore")
 
