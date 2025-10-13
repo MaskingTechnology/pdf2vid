@@ -1,9 +1,13 @@
 
 # pdf2vid
 
-internal tool
-extensive caching
-no error handling
+Simple tool for creating videos from PDF files with AI-generated voice-overs.
+
+🎥 [Example video](https://www.youtube.com/watch?v=BMgJ4wZbCWg)
+
+⚙️ [Example source](https://github.com/MaskingTechnology/jitar/tree/main/videos/introduction)
+
+**Note:** This is currently developed as an internal tool with a “works for us” mindset. You’re free to use it, as long as you’re not expecting a polished solution (input validation and error handling are minimal). Treat it nicely, and it will treat you nicely too.
 
 ## Requirements
 
