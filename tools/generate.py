@@ -1,10 +1,6 @@
 
 import argparse
 
-from flows.scene import generate_scene
-from flows.chapter import generate_chapter
-from flows.video import generate_video
-
 parser = argparse.ArgumentParser(description="Generates a scene from configuration.")
 
 parser.add_argument("--type", type=str, required=True, help="The type to generate (scene, chapter or video).")
@@ -16,12 +12,15 @@ args = parser.parse_args()
 match args.type.lower():
 
     case "scene":
+        from flows.scene import generate_scene
         generate_scene(args.config, args.output)
 
     case "chapter":
+        from flows.chapter import generate_chapter
         generate_chapter(args.config, args.output)
     
     case "video":
+        from flows.video import generate_video
         generate_video(args.config, args.output)
     
     case _:

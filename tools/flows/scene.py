@@ -1,10 +1,4 @@
 
-from tasks.generate_voice import generate_voice
-from tasks.extract_frames import extract_frames
-from tasks.duplicate_frames import duplicate_frames
-from tasks.create_video import create_video
-from tasks.add_audio import add_audio
-
 from models.scene import VoiceOptions, FrameOptions, FolderPaths, FilePaths, Config
 
 from utils.config import read_config
@@ -198,6 +192,8 @@ def _voiceover(options, files):
     
     print("∞ GENERATING VOICE", end="\r", flush=True)
 
+    from tasks.generate_voice import generate_voice
+
     generate_voice(options.text, options.speed, files.voice)
 
     print(f"✔ GENERATED VOICE -> {files.voice}")
@@ -211,6 +207,9 @@ def _frames(options, folders):
 
     create_folder(folders.frames)
     pdf_file = join_paths(folders.config, options.source)
+
+    from tasks.extract_frames import extract_frames
+
     extract_frames(pdf_file, folders.frames, options.start, options.end)
 
     print(f"✔ EXTRACTED FRAMES -> {folders.frames}")
@@ -223,6 +222,9 @@ def _duplications(options, folders):
     print("∞ DUPLICATING FRAMES", end="\r", flush=True)
 
     create_folder(folders.duplications)
+
+    from tasks.duplicate_frames import duplicate_frames
+
     duplicate_frames(folders.frames, folders.duplications, options.duplications)
 
     print(f"✔ DUPLICATED FRAMES -> {folders.duplications}")
@@ -234,6 +236,8 @@ def _video(frame_options, folders, files):
     
     print("∞ CREATING VIDEO", end="\r", flush=True)
 
+    from tasks.create_video import create_video
+
     create_video(folders.duplications, files.video, frame_options.rate)
 
     print(f"✔ CREATED VIDEO -> {files.video}")
@@ -244,6 +248,8 @@ def _result(voice_options, files):
         return
     
     print("∞ COMBINING VIDEO AND VOICE", end="\r", flush=True)
+
+    from tasks.add_audio import add_audio
 
     add_audio(files.video, files.voice, voice_options.delay, files.result)
 

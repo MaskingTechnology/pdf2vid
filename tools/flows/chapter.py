@@ -1,6 +1,4 @@
 
-from tasks.stitch_videos import stitch_videos
-
 from models.chapter import FolderPaths, FilePaths, Config
 
 from utils.config import read_config
@@ -63,6 +61,8 @@ def _create_file_paths(chapter, folders):
 def _generate(config):
 
     print("∞ GENERATING CHAPTER", end="\r", flush=True)
+
+    from tasks.stitch_videos import stitch_videos
 
     stitch_videos(config.folders.chapter, config.scenes, config.files.result)
 

@@ -1,6 +1,4 @@
 
-from tasks.stitch_videos import stitch_videos
-
 from models.video import FolderPaths, FilePaths, Config
 
 from utils.config import read_config
@@ -63,6 +61,8 @@ def _generate(config):
 
     print("∞ GENERATING VIDEO", end="\r", flush=True)
 
+    from tasks.stitch_videos import stitch_videos
+    
     stitch_videos(config.folders.cache, config.chapters, config.files.result)
 
     print(f"✔ GENERATED VIDEO -> {config.files.result}")
