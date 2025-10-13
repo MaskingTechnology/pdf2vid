@@ -10,6 +10,6 @@ def create_video(input_folder, output_file, framerate = DEFAULT_FRAMERATE):
     (
         ffmpeg
         .input(input_pattern, r=framerate)
-        .output(output_file, vcodec='libx264', pix_fmt='yuv420p')
+        .output(output_file, vcodec='libx264', pix_fmt='yuv420p', fflags='+genpts')
         .run(overwrite_output=True, quiet=True)
     )

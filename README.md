@@ -146,7 +146,6 @@ dist
 |  |  |- S1.mp4
 |  |  |- S2.mp4
 |  |  |- S3.mp4
-|  |  |- playlist.txt (list of all mp4 scene files in correct order)
 |- C1.mp4 (final result with all scenes combined)
 ```
 
@@ -187,7 +186,6 @@ dist
 |- cache
 |  |- C1.mp4
 |  |- C2.mp4
-|  |- playlist.txt (list of all mp4 chapter files in correct order)
 |- Instructions.mp4 (final result with all chapters combined)
 ```
 
