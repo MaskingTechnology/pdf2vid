@@ -154,14 +154,17 @@ def _update_cache(config):
     frames_duplications_changed = cached_frames.duplications != config.frames.duplications
     frames_rate_changed = cached_frames.rate != config.frames.rate
 
-    video_changed = frames_rate_changed
-    result_changed = voice_delay_changed
+    voice_changed = voice_text_changed or voice_speed_changed or voice_delay_changed
+    frames_changed = frames_source_changed or frames_start_changed or frames_end_changed
 
-    if voice_text_changed or voice_speed_changed:
+    video_changed = frames_rate_changed
+    result_changed = False
+
+    if voice_changed:
         remove_file(config.files.voice)
         result_changed = True
     
-    if frames_source_changed or frames_start_changed or frames_end_changed:
+    if frames_changed:
         remove_folder(config.folders.frames)
         frames_duplications_changed = True
     
@@ -188,7 +191,7 @@ def _generate(config):
     _frames(config.frames, config.folders)
     _duplications(config.frames, config.folders)
     _video(config.frames, config.folders, config.files)
-    _result(config.voice, config.files)
+    _result(config.files)
 
 def _voiceover(options, files):
 
@@ -199,7 +202,7 @@ def _voiceover(options, files):
 
     from tasks.generate_voice import generate_voice
 
-    generate_voice(options.text, options.speed, files.voice)
+    generate_voice(options.text, options.speed, options.delay, files.voice)
 
     print(f"  ✔ Generated voice -> {files.voice}")
 
@@ -247,7 +250,7 @@ def _video(frame_options, folders, files):
 
     print(f"  ✔ Created video -> {files.video}")
 
-def _result(voice_options, files):
+def _result(files):
 
     if path_exists(files.result):
         return
@@ -256,7 +259,7 @@ def _result(voice_options, files):
 
     from tasks.add_audio import add_audio
 
-    add_audio(files.video, files.voice, voice_options.delay, files.result)
+    add_audio(files.video, files.voice, files.result)
 
     print(f"  ✔ Combined video and voice -> {files.result}")
 

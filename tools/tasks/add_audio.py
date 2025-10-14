@@ -1,10 +1,10 @@
 
 import ffmpeg
 
-def add_audio(video_file, audio_file, audio_delay, output_file):
+def add_audio(video_file, audio_file, output_file):
 
     video_input = ffmpeg.input(video_file)
-    audio_input = ffmpeg.input(audio_file, itsoffset=audio_delay)
+    audio_input = ffmpeg.input(audio_file)
 
     (
         ffmpeg
