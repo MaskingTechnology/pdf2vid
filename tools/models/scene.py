@@ -25,7 +25,8 @@ class FolderPaths:
 
 @dataclass(frozen=True)
 class FilePaths:
-    config: str
+    source: str
+    cache: str
     voice: str
     video: str
     result: str
