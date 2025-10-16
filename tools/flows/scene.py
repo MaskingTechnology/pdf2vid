@@ -3,6 +3,7 @@ from models.scene import VoiceOptions, FrameOptions, FolderPaths, FilePaths, Con
 
 from utils.config import read_config
 from utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, remove_file, create_folder, remove_folder
+from utils.hashing import file_hash_changed, write_file_hash
 
 ### DEFAULTS ##########################
 
@@ -104,6 +105,7 @@ def _create_file_paths(config_file, scene, folders):
 
     cache_file = join_paths(folders.scene, "config.json")
     voice_file = join_paths(folders.scene, "voice.wav")
+    frames_file = join_paths(folders.scene, "frames.md5")
     video_file = join_paths(folders.scene, "video.mp4")
     result_file = join_paths(folders.chapter, f"{scene}.mp4")
 
@@ -111,6 +113,7 @@ def _create_file_paths(config_file, scene, folders):
         source = config_file,
         cache = cache_file,
         voice = voice_file,
+        frames = frames_file,
         video = video_file,
         result = result_file
     )
@@ -148,6 +151,9 @@ def _update_cache(config):
     voice_speed_changed = cached_voice.speed != config.voice.speed
     voice_delay_changed = cached_voice.delay != config.voice.delay
 
+    frames_pdf_file = join_paths(config.folders.config, config.frames.source)
+
+    frames_hash_changed = file_hash_changed(frames_pdf_file, config.files.frames)
     frames_source_changed = cached_frames.source != config.frames.source
     frames_start_changed = cached_frames.start != config.frames.start
     frames_end_changed = cached_frames.end != config.frames.end
@@ -155,7 +161,7 @@ def _update_cache(config):
     frames_rate_changed = cached_frames.rate != config.frames.rate
 
     voice_changed = voice_text_changed or voice_speed_changed or voice_delay_changed
-    frames_changed = frames_source_changed or frames_start_changed or frames_end_changed
+    frames_changed = frames_hash_changed or frames_source_changed or frames_start_changed or frames_end_changed
 
     video_changed = frames_rate_changed
     result_changed = False
@@ -187,14 +193,17 @@ def _generate(config):
 
     print(f"‣ GENERATING SCENE {config.chapter}:{config.scene}")
 
-    _voiceover(config.voice, config.files)
-    _frames(config.frames, config.folders)
-    _duplications(config.frames, config.folders)
-    _video(config.frames, config.folders, config.files)
-    _result(config.files)
+    _voiceover(config)
+    _frames(config)
+    _duplications(config)
+    _video(config)
+    _result(config)
 
-def _voiceover(options, files):
+def _voiceover(config):
 
+    files = config.files
+    options = config.voice
+    
     if path_exists(files.voice):
         return
     
@@ -206,7 +215,11 @@ def _voiceover(options, files):
 
     print(f"  ✔ Generated voice -> {files.voice}")
 
-def _frames(options, folders):
+def _frames(config):
+
+    folders = config.folders
+    files = config.files
+    options = config.frames
 
     if path_exists(folders.frames):
         return
@@ -220,9 +233,14 @@ def _frames(options, folders):
 
     extract_frames(pdf_file, folders.frames, options.start, options.end)
 
+    write_file_hash(pdf_file, files.frames)
+
     print(f"  ✔ Extracted frames -> {folders.frames}")
 
-def _duplications(options, folders):
+def _duplications(config):
+
+    folders = config.folders
+    options = config.frames
 
     if path_exists(folders.duplications):
         return
@@ -237,7 +255,11 @@ def _duplications(options, folders):
 
     print(f"  ✔ Duplicated frames -> {folders.duplications}")
 
-def _video(frame_options, folders, files):
+def _video(config):
+
+    folders = config.folders
+    files = config.files
+    options = config.frames
 
     if path_exists(files.video):
         return
@@ -246,11 +268,13 @@ def _video(frame_options, folders, files):
 
     from tasks.create_video import create_video
 
-    create_video(folders.duplications, files.video, frame_options.rate)
+    create_video(folders.duplications, files.video, options.rate)
 
     print(f"  ✔ Created video -> {files.video}")
 
-def _result(files):
+def _result(config):
+
+    files = config.files
 
     if path_exists(files.result):
         return
@@ -267,4 +291,6 @@ def _result(files):
 
 def _finalize(config):
 
-    copy_file(config.files.source, config.files.cache)
+    files = config.files
+
+    copy_file(files.source, files.cache)

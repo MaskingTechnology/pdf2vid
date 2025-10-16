@@ -28,6 +28,7 @@ class FilePaths:
     source: str
     cache: str
     voice: str
+    frames: str
     video: str
     result: str
 
