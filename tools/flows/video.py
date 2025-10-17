@@ -1,8 +1,8 @@
 
-from models.video import FolderPaths, FilePaths, Config
+from ..models.video import FolderPaths, FilePaths, Config
 
-from utils.config import read_config
-from utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder
+from ..utils.config import read_config
+from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder
 
 ### DEFAULTS ##########################
 
@@ -109,7 +109,7 @@ def _update_cache(config):
 
 def _chapters(config):
 
-    from flows.chapter import generate_chapter
+    from .chapter import generate_chapter
 
     chapter_values = config.chapters.values()
     output_folder = config.folders.output
@@ -131,7 +131,7 @@ def _video(config):
 
     print("⧗ GENERATING VIDEO", end="\r", flush=True)
 
-    from tasks.stitch_videos import stitch_videos
+    from ..tasks.stitch_videos import stitch_videos
     
     cache_folder = config.folders.cache
     chapter_keys = config.chapters.keys()

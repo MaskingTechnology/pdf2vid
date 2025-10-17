@@ -1,8 +1,8 @@
 
-from models.chapter import FolderPaths, FilePaths, Config
+from ..models.chapter import FolderPaths, FilePaths, Config
 
-from utils.config import read_config
-from utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder
+from ..utils.config import read_config
+from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder
 
 ### DEFAULTS ##########################
 
@@ -111,7 +111,7 @@ def _update_cache(config):
 
 def _scenes(config):
 
-    from flows.scene import generate_scene
+    from .scene import generate_scene
 
     scene_values = config.scenes.values()
     output_folder = config.folders.output
@@ -133,7 +133,7 @@ def _chapter(config):
 
     print(f"⧗ GENERATING CHAPTER {config.chapter}", end="\r", flush=True)
 
-    from tasks.stitch_videos import stitch_videos
+    from ..tasks.stitch_videos import stitch_videos
 
     chapter_folder = config.folders.chapter
     scene_keys = config.scenes.keys()

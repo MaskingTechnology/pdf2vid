@@ -1,7 +1,7 @@
 
 import ffmpeg
 
-from utils.filesystem import join_paths
+from ..utils.filesystem import join_paths
 
 def stitch_videos(input_folder, video_names, output_file):
 

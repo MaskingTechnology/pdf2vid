@@ -2,7 +2,7 @@
 import hashlib
 import os
 
-from utils.filesystem import read_file, write_file
+from .filesystem import read_file, write_file
 
 CHUNK_SIZE = 4096
 

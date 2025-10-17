@@ -12,15 +12,15 @@ args = parser.parse_args()
 match args.type.lower():
 
     case "scene":
-        from flows.scene import generate_scene
+        from .flows.scene import generate_scene
         generate_scene(args.config, args.output)
 
     case "chapter":
-        from flows.chapter import generate_chapter
+        from .flows.chapter import generate_chapter
         generate_chapter(args.config, args.output)
     
     case "video":
-        from flows.video import generate_video
+        from .flows.video import generate_video
         generate_video(args.config, args.output)
     
     case _:

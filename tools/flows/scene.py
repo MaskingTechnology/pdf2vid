@@ -1,9 +1,9 @@
 
-from models.scene import VoiceOptions, FrameOptions, FolderPaths, FilePaths, Config
+from ..models.scene import VoiceOptions, FrameOptions, FolderPaths, FilePaths, Config
 
-from utils.config import read_config
-from utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, remove_file, create_folder, remove_folder
-from utils.hashing import file_hash_changed, write_file_hash
+from ..utils.config import read_config
+from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, remove_file, create_folder, remove_folder
+from ..utils.hashing import file_hash_changed, write_file_hash
 
 ### DEFAULTS ##########################
 
@@ -209,7 +209,7 @@ def _voiceover(config):
     
     print("  ⧗ Generating voice", end="\r", flush=True)
 
-    from tasks.generate_voice import generate_voice
+    from ..tasks.generate_voice import generate_voice
 
     generate_voice(options.text, options.speed, options.delay, files.voice)
 
@@ -229,7 +229,7 @@ def _frames(config):
     create_folder(folders.frames)
     pdf_file = join_paths(folders.config, options.source)
 
-    from tasks.extract_frames import extract_frames
+    from ..tasks.extract_frames import extract_frames
 
     extract_frames(pdf_file, folders.frames, options.start, options.end)
 
@@ -249,7 +249,7 @@ def _duplications(config):
 
     create_folder(folders.duplications)
 
-    from tasks.duplicate_frames import duplicate_frames
+    from ..tasks.duplicate_frames import duplicate_frames
 
     duplicate_frames(folders.frames, folders.duplications, options.duplications)
 
@@ -266,7 +266,7 @@ def _video(config):
     
     print("  ⧗ Creating video", end="\r", flush=True)
 
-    from tasks.create_video import create_video
+    from ..tasks.create_video import create_video
 
     create_video(folders.duplications, files.video, options.rate)
 
@@ -281,7 +281,7 @@ def _result(config):
     
     print("  ⧗ Combining video and voice", end="\r", flush=True)
 
-    from tasks.add_audio import add_audio
+    from ..tasks.add_audio import add_audio
 
     add_audio(files.video, files.voice, files.result)
 

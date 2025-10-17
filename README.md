@@ -81,7 +81,7 @@ Duplication is very useful for pausing frames. Its need to be specified in the f
 Generation:
 
 ```bash
-python path/to/tools/generate.py --type "scene" --config "config.json" --output "dist"
+path/to/pdf2vid --type "scene" --config "config.json" --output "dist"
 ```
 
 Arguments:
@@ -128,7 +128,7 @@ Options:
 Generation:
 
 ```bash
-python path/to/tools/generate.py --type "chapter" --config "config.json" --output "dist"
+path/to/pdf2vid --type "chapter" --config "config.json" --output "dist"
 ```
 
 Arguments:
@@ -171,7 +171,7 @@ Options:
 Generation:
 
 ```bash
-python path/to/tools/generate.py --type "video" --config "config.json" --output "dist"
+path/to/pdf2vid --type "video" --config "config.json" --output "dist"
 ```
 
 Arguments:
