@@ -14,14 +14,13 @@ FRAMES_DEFAULTS = { "start": None, "end": None, "duplications": "", "rate": 10 }
 
 ### PROCESS ##########################
 
-def generate_scene(config_file, output_folder):
+def generate_scene(chapter_id, scene_id, config_file, output_folder):
 
-    config = _create_config(config_file, output_folder)
+    config = _create_config(chapter_id, scene_id, config_file, output_folder)
 
     updated = _initialize(config)
 
     if not updated:
-        # print(f"✔ SCENE {config.chapter}:{config.scene} UP-TO-DATE")
         return False
     
     _generate(config)
@@ -43,20 +42,18 @@ def _read_config_data(config_file):
 
     return data
 
-def _create_config(config_file, output_folder):
+def _create_config(chapter_id, scene_id, config_file, output_folder):
 
     data = _read_config_data(config_file)
 
-    chapter = data.get("chapter", CHAPTER_DEFAULT)
-    scene = data.get("scene", SCENE_DEFAULT)
     voice = _create_voice_options(data)
     frames = _create_frame_options(data)
-    folders = _create_folder_paths(config_file, output_folder, chapter, scene)
-    files = _create_file_paths(config_file, scene, folders)
+    folders = _create_folder_paths(config_file, output_folder, chapter_id, scene_id)
+    files = _create_file_paths(config_file, scene_id, folders)
 
     return Config(
-        chapter = chapter,
-        scene = scene,
+        chapter = chapter_id,
+        scene = scene_id,
         voice = voice,
         frames = frames,
         folders = folders,
@@ -85,11 +82,11 @@ def _create_frame_options(data):
         rate = frames.get("rate")
     )
 
-def _create_folder_paths(config_file, output_folder, chapter, scene):
+def _create_folder_paths(config_file, output_folder, chapter_id, scene_id):
 
     config_folder = get_parent_path(config_file)
-    chapter_folder = join_paths(output_folder, "chapters", chapter)
-    scene_folder = join_paths(chapter_folder, "scenes", scene)
+    chapter_folder = join_paths(output_folder, "chapters", chapter_id)
+    scene_folder = join_paths(chapter_folder, "scenes", scene_id)
     frames_folder = join_paths(scene_folder, "frames")
     duplications_folder = join_paths(scene_folder, "_frames")
 
@@ -101,13 +98,13 @@ def _create_folder_paths(config_file, output_folder, chapter, scene):
         duplications = duplications_folder
     )
 
-def _create_file_paths(config_file, scene, folders):
+def _create_file_paths(config_file, scene_id, folders):
 
     cache_file = join_paths(folders.scene, "config.json")
     voice_file = join_paths(folders.scene, "voice.wav")
     frames_file = join_paths(folders.scene, "frames.md5")
     video_file = join_paths(folders.scene, "video.mp4")
-    result_file = join_paths(folders.chapter, f"{scene}.mp4")
+    result_file = join_paths(folders.chapter, f"{scene_id}.mp4")
 
     return FilePaths(
         source = config_file,

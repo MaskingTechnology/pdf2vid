@@ -12,11 +12,14 @@ CHAPTERS_DEFAULT = []
 
 ### PROCESS ##########################
 
-def generate_video(config_file, output_folder):
+def generate_video(config_file, output_folder, chapter_id, scene_id):
 
     config = _create_config(config_file, output_folder)
 
-    return _generate(config)
+    if chapter_id != None:
+        return _generate_chapter(config, chapter_id, scene_id)
+
+    return _generate_video(config)
 
 ### CONFIG ##########################
 
@@ -62,7 +65,24 @@ def _create_file_paths(config_file, video, folders):
 
 ### PROCESS ##########################
 
-def _generate(config):
+def _generate_chapter(config, chapter_id, scene_id):
+
+    from .chapter import generate_chapter
+
+    chapter_config = config.chapters.get(chapter_id)
+    output_folder = config.folders.output
+    config_folder = config.folders.config
+
+    config_file = join_paths(config_folder, chapter_config)
+
+    updated = generate_chapter(chapter_id, config_file, output_folder, scene_id)
+
+    if not updated and scene_id == None:
+        print(f"✔ CHAPTER {chapter_id} UP-TO-DATE")
+    
+    return updated
+
+def _generate_video(config):
 
     config_updated = _initialize(config)
     chapters_updated = _chapters(config)
@@ -111,16 +131,16 @@ def _chapters(config):
 
     from .chapter import generate_chapter
 
-    chapter_values = config.chapters.values()
+    chapter_items = config.chapters.items()
     output_folder = config.folders.output
     config_folder = config.folders.config
 
     video_updated = False
 
-    for value in chapter_values:
+    for chapter_id, chapter_config in chapter_items:
 
-        config_file = join_paths(config_folder, value)
-        chapter_updated = generate_chapter(config_file, output_folder)
+        config_file = join_paths(config_folder, chapter_config)
+        chapter_updated = generate_chapter(chapter_id, config_file, output_folder, None)
 
         if chapter_updated:
             video_updated = True

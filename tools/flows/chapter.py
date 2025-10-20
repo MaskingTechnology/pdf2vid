@@ -12,37 +12,39 @@ SCENES_DEFAULT = []
 
 ### PROCESS ##########################
 
-def generate_chapter(config_file, output_folder):
+def generate_chapter(chapter_id, config_file, output_folder, scene_id):
 
-    config = _create_config(config_file, output_folder)
+    config = _create_config(chapter_id, config_file, output_folder)
 
-    return _generate(config)
+    if scene_id != None:
+        return _generate_scene(config, scene_id)
+
+    return _generate_chapter(config)
 
 ### CONFIG ##########################
 
-def _create_config(config_file, output_folder):
+def _create_config(chapter_id, config_file, output_folder):
 
     data = read_config(config_file)
 
-    chapter = data.get("chapter", CHAPTER_DEFAULT)
     description = data.get("description", DESCRIPTION_DEFAULT)
     scenes = data.get("scenes", SCENES_DEFAULT)
-    folders = _create_folder_paths(config_file, output_folder, chapter)
-    files = _create_file_paths(config_file, chapter, folders)
+    folders = _create_folder_paths(config_file, output_folder, chapter_id)
+    files = _create_file_paths(config_file, chapter_id, folders)
 
     return Config(
-        chapter = chapter,
+        chapter = chapter_id,
         description = description,
         scenes = scenes,
         folders = folders,
         files = files
     )
 
-def _create_folder_paths(config_file, output_folder, chapter):
+def _create_folder_paths(config_file, output_folder, chapter_id):
 
     config_folder = get_parent_path(config_file)
     cache_folder = join_paths(output_folder, "chapters")
-    chapter_folder = join_paths(cache_folder, chapter)
+    chapter_folder = join_paths(cache_folder, chapter_id)
 
     return FolderPaths(
         config = config_folder,
@@ -51,10 +53,10 @@ def _create_folder_paths(config_file, output_folder, chapter):
         chapter = chapter_folder
     )
 
-def _create_file_paths(config_file, chapter, folders):
+def _create_file_paths(config_file, chapter_id, folders):
 
     cache_file = join_paths(folders.chapter, "config.json")
-    result_file = join_paths(folders.cache, f"{chapter}.mp4")
+    result_file = join_paths(folders.cache, f"{chapter_id}.mp4")
 
     return FilePaths(
         source = config_file,
@@ -64,7 +66,25 @@ def _create_file_paths(config_file, chapter, folders):
 
 ### PROCESS ##########################
 
-def _generate(config):
+def _generate_scene(config, scene_id):
+
+    from .scene import generate_scene
+
+    chapter_id = config.chapter
+    scene_config = config.scenes.get(scene_id)
+    output_folder = config.folders.output
+    config_folder = config.folders.config
+
+    config_file = join_paths(config_folder, scene_config)
+    
+    updated = generate_scene(chapter_id, scene_id, config_file, output_folder)
+
+    if not updated:
+        print(f"✔ SCENE {chapter_id}:{scene_id} UP-TO-DATE")
+    
+    return updated
+
+def _generate_chapter(config):
 
     config_updated = _initialize(config)
     scenes_updated = _scenes(config)
@@ -72,7 +92,6 @@ def _generate(config):
     updated = config_updated or scenes_updated
 
     if not updated:
-        # print(f"✔ CHAPTER {config.chapter} UP-TO-DATE")
         return False
 
     _chapter(config)
@@ -113,16 +132,17 @@ def _scenes(config):
 
     from .scene import generate_scene
 
-    scene_values = config.scenes.values()
+    chapter_id = config.chapter
+    scene_items = config.scenes.items()
     output_folder = config.folders.output
     config_folder = config.folders.config
 
     chapter_updated = False
 
-    for value in scene_values:
+    for scene_id, scene_config in scene_items:
 
-        config_file = join_paths(config_folder, value)
-        scene_updated = generate_scene(config_file, output_folder)
+        config_file = join_paths(config_folder, scene_config)
+        scene_updated = generate_scene(chapter_id, scene_id, config_file, output_folder)
 
         if scene_updated:
             chapter_updated = True

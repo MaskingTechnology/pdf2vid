@@ -30,20 +30,101 @@ pip install -r requirements.txt
 
 The basic structure of a video is:
 
-1. **Scene** — the smallest unit, covering a single piece of voice-over text.
-1. **Chapter** - a group of related scenes covering one topic.
 1. **Video** - the full piece, made up of chapters.
+1. **Chapter** - a group of related scenes covering one topic.
+1. **Scene** — the smallest unit, covering a single piece of voice-over text.
 
 All three can be generated independently using the provided tool.
 
-### Generating scenes
+### Video
 
-Configuration:
+Configuration: `video.json`
 
 ```json
 {
-    "chapter": "C1",
-    "scene": "S1",
+    "video": "Instructions",
+    "description": "The most clear video ever",
+    "chapters": {
+        "C1": "chapter1.json",
+        "C2": "chapter2.json"
+    }
+}
+```
+
+Options:
+
+* **video** — the name of the video.
+* **chapters** — the object of chapter IDs and their configuration files in rendering order.
+
+Generation:
+
+```bash
+path/to/pdf2vid --config "config.json" --output "dist"
+```
+
+Arguments:
+
+* **--config** — path the video configuration file.
+* **--output** — the root directory of the video output.
+
+Result:
+
+```txt
+dist
+|- chapters (generated chapter videos)
+|- config.json (cached video config for change detection)
+|- Instructions.mp4 (final result with all chapters combined)
+```
+
+### Chapter
+
+Configuration: `chapter1.json`
+
+```json
+{
+    "description": "First chapter",
+    "scenes": {
+        "S1": "chapter1/scene1.json",
+        "S2": "chapter1/scene2.json",
+        "S3": "chapter1/scene3.json"
+    }
+}
+```
+
+Options:
+
+* **description** — the description of the topic (for yourself, not used by the tools).
+* **scenes** — the object of scene IDs and their configuration files in rendering order.
+
+Generation:
+
+```bash
+path/to/pdf2vid --config "config.json" --output "dist" --chapter "C1"
+```
+
+Arguments:
+
+* **--config** — path the video configuration file.
+* **--output** — the root directory of the video output.
+* **--chapter** — the ID of the chapter to generate.
+
+Result:
+
+```txt
+dist
+|- chapters
+|  |- C1 (generated scene videos)
+|  |- C1.mp4 (chapter video)
+|- config.json (cached video config for change detection)
+|- Instructions.mp4 (final result with all chapters combined)
+```
+
+### Scene
+
+Configuration: `chapter1/scene1.json`
+
+```json
+{
     "voice":
     {
         "text": "Hello and welcome!",
@@ -63,8 +144,6 @@ Configuration:
 
 Options:
 
-* **chapter** — the ID of the chapter this scene belongs to.
-* **scene** — the ID of the scene.
 * **voice** — voice-over options:
   * **text** — the text to convert to speech.
   * **speed** — the read-speed.
@@ -81,112 +160,33 @@ Duplication is very useful for pausing frames. Its need to be specified in the f
 Generation:
 
 ```bash
-path/to/pdf2vid --type "scene" --config "config.json" --output "dist"
+path/to/pdf2vid --config "config.json" --output "dist" --chapter "C1" --scene "S1"
 ```
 
 Arguments:
 
-* **--config** — path the scene configuration file.
-* **--output** — the root directory of the output.
+* **--config** — path the video configuration file.
+* **--output** — the root directory of the video output.
+* **--chapter** — the ID of the chapter to generate.
+* **--scene** — the ID of the scene to generate.
 
 Result:
 
 ```txt
 dist
-|- cache
-|  | -C1
-|  |  |- cache
+|- chapters
+|  |- C1
+|  |  |- scenes
 |  |  |  |- S1
 |  |  |  |  |- _frames (frames with duplications)
 |  |  |  |  |- frames (extracted frames from the PDF)
-|  |  |  |  |- config.json (copy of the previous config)
+|  |  |  |  |- config.json (cached scene config for change detection)
+|  |  |  |  |- frames.md5 (PDF file hash for change detection)
 |  |  |  |  |- video.mp4 (generated video from the frames)
 |  |  |  |  |- voice.wav (generated voice-over)
-|  |  |- S1.mp4 (final result with video and voice combined)
-```
-
-**Note** that this will only generate a new result if one of the configuration options has changed.
-
-### Generate chapter
-
-Configuration:
-
-```json
-{
-    "chapter": "C1",
-    "description": "First chapter",
-    "scenes": ["S1", "S2", "S3"]
-}
-```
-
-Options:
-
-* **chapter** — the ID of the chapter.
-* **description** — the description of the topic (for yourself, not used by the tools).
-* **scenes** — the list of scene IDs in rendering order.
-
-Generation:
-
-```bash
-path/to/pdf2vid --type "chapter" --config "config.json" --output "dist"
-```
-
-Arguments:
-
-* **--config** — path the scene configuration file.
-* **--output** — the root directory of the output.
-
-Result:
-
-```txt
-dist
-|- cache
-|  | -C1
-|  |  |- cache
-|  |  |- S1.mp4
-|  |  |- S2.mp4
-|  |  |- S3.mp4
-|- C1.mp4 (final result with all scenes combined)
-```
-
-**Note** that this will always generate a new result.
-
-### Generate video
-
-Configuration:
-
-```json
-{
-    "video": "Instructions",
-    "description": "The most clear video ever",
-    "chapters": ["C1", "C2"]
-}
-```
-
-Options:
-
-* **video** — the name of the video.
-* **chapters** — the list of chapter IDs in rendering order.
-
-Generation:
-
-```bash
-path/to/pdf2vid --type "video" --config "config.json" --output "dist"
-```
-
-Arguments:
-
-* **--config** — path the scene configuration file.
-* **--output** — the root directory of the output.
-
-Result:
-
-```txt
-dist
-|- cache
-|  |- C1.mp4
-|  |- C2.mp4
+|  |  |- S1.mp4 (final scene with video and voice combined)
+|  |  |- config.json (cached chapter config for change detection)
+|  |- C1.mp4 (chapter video)
+|- config.json (cached video config for change detection)
 |- Instructions.mp4 (final result with all chapters combined)
 ```
-
-**Note** that this will always generate a new result.
