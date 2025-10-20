@@ -12,4 +12,7 @@ args = parser.parse_args()
 
 from .flows.video import generate_video
 
-generate_video(args.config, args.output, args.chapter, args.scene)
+try:
+    generate_video(args.config, args.output, args.chapter, args.scene)
+except RuntimeError as error:
+    print(f"✘ {error}")

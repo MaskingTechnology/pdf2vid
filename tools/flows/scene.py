@@ -17,7 +17,7 @@ FRAMES_DEFAULTS = { "start": None, "end": None, "duplications": "", "rate": 10 }
 def generate_scene(chapter_id, scene_id, config_file, output_folder):
 
     config = _create_config(chapter_id, scene_id, config_file, output_folder)
-
+    
     updated = _initialize(config)
 
     if not updated:
@@ -45,6 +45,9 @@ def _read_config_data(config_file):
 def _create_config(chapter_id, scene_id, config_file, output_folder):
 
     data = _read_config_data(config_file)
+
+    if data == None:
+        raise RuntimeError(f"Configuration not found for scene {chapter_id}:{scene_id}!")
 
     voice = _create_voice_options(data)
     frames = _create_frame_options(data)

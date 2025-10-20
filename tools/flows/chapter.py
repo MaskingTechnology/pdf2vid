@@ -27,6 +27,9 @@ def _create_config(chapter_id, config_file, output_folder):
 
     data = read_config(config_file)
 
+    if data == None:
+        raise RuntimeError(f"Configuration not found for chapter {chapter_id}!")
+
     description = data.get("description", DESCRIPTION_DEFAULT)
     scenes = data.get("scenes", SCENES_DEFAULT)
     folders = _create_folder_paths(config_file, output_folder, chapter_id)
@@ -68,15 +71,19 @@ def _create_file_paths(config_file, chapter_id, folders):
 
 def _generate_scene(config, scene_id):
 
-    from .scene import generate_scene
-
     chapter_id = config.chapter
     scene_config = config.scenes.get(scene_id)
+
+    if scene_config == None:
+        raise RuntimeError(f"Unknown scene {chapter_id}:{scene_id}")
+    
     output_folder = config.folders.output
     config_folder = config.folders.config
 
     config_file = join_paths(config_folder, scene_config)
     
+    from .scene import generate_scene
+
     updated = generate_scene(chapter_id, scene_id, config_file, output_folder)
 
     if not updated:

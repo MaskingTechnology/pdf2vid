@@ -27,6 +27,9 @@ def _create_config(config_file, output_folder):
 
     data = read_config(config_file)
 
+    if data == None:
+        raise RuntimeError("Configuration not found for video!")
+
     video = data.get("video", VIDEO_DEFAULT)
     description = data.get("description", DESCRIPTION_DEFAULT)
     chapters = data.get("chapters", CHAPTERS_DEFAULT)
@@ -67,13 +70,17 @@ def _create_file_paths(config_file, video, folders):
 
 def _generate_chapter(config, chapter_id, scene_id):
 
-    from .chapter import generate_chapter
-
     chapter_config = config.chapters.get(chapter_id)
+
+    if chapter_config == None:
+        raise RuntimeError(f"✘ Unknown chapter {chapter_id}")
+
     output_folder = config.folders.output
     config_folder = config.folders.config
 
     config_file = join_paths(config_folder, chapter_config)
+
+    from .chapter import generate_chapter
 
     updated = generate_chapter(chapter_id, config_file, output_folder, scene_id)
 
