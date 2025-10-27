@@ -11,9 +11,6 @@ def stitch_videos(input_folder, video_names, output_file):
         full_path = join_paths(input_folder, f"{video_name}.mp4")
         inputs.append(ffmpeg.input(full_path))
 
-    video_streams = [entry.video for entry in inputs]
-    audio_streams = [entry.audio for entry in inputs]
-
     stream_pairs = []
 
     for inp in inputs:
