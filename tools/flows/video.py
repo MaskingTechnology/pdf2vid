@@ -73,7 +73,7 @@ def _generate_chapter(config, chapter_id, scene_id):
     chapter_config = config.chapters.get(chapter_id)
 
     if chapter_config == None:
-        raise RuntimeError(f"✘ Unknown chapter {chapter_id}")
+        raise RuntimeError(f"Unknown chapter {chapter_id}")
 
     output_folder = config.folders.output
     config_folder = config.folders.config
