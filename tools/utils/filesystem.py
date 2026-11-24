@@ -4,7 +4,7 @@ import shutil
 import os
 
 def get_parent_path(file_path):
-    
+
     return Path(file_path).parent
 
 def join_paths(*paths):
@@ -27,12 +27,12 @@ def read_file(file_path):
 
     if not path_exists(file_path):
         return None
-    
+
     with open(file_path, "r") as file:
         return file.read()
 
 def write_file(file_path, content):
-    
+
     with open(file_path, "w") as file:
         file.write(content)
 

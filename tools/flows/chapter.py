@@ -76,19 +76,19 @@ def _generate_scene(config, scene_id):
 
     if scene_config == None:
         raise RuntimeError(f"Unknown scene {chapter_id}:{scene_id}")
-    
+
     output_folder = config.folders.output
     config_folder = config.folders.config
 
     config_file = join_paths(config_folder, scene_config)
-    
+
     from .scene import generate_scene
 
     updated = generate_scene(chapter_id, scene_id, config_file, output_folder)
 
     if not updated:
         print(f"✔ SCENE {chapter_id}:{scene_id} UP-TO-DATE")
-    
+
     return updated
 
 def _generate_chapter(config):
@@ -118,10 +118,10 @@ def _initialize(config):
 def _assure_folders(config):
 
     if not path_exists(config.folders.chapter):
-        
+
         create_folder(config.folders.chapter)
         return False
-    
+
     return True
 
 def _update_cache(config):
@@ -130,7 +130,7 @@ def _update_cache(config):
 
     if cached_config == None:
         return True
-    
+
     scenes_changed = cached_config["scenes"] != config.scenes
 
     return scenes_changed

@@ -28,9 +28,9 @@ def _generate_file_hash(file_path):
     md5_hash = hashlib.md5()
 
     with open(file_path, "rb") as file:
-        
+
         chunk = file.read(CHUNK_SIZE)
-        
+
         while chunk:
 
             md5_hash.update(chunk)

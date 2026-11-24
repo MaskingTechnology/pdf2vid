@@ -1,15 +1,17 @@
 
 import ffmpeg
 
+from ..utils.filesystem import join_paths
+
 DEFAULT_FRAMERATE = 10
 
 def create_video(input_folder, output_file, framerate = DEFAULT_FRAMERATE):
 
-    input_pattern = f"{input_folder}/%03d.png"
+    input_pattern = join_paths(input_folder, "%03d.png")
 
     (
         ffmpeg
         .input(input_pattern, r=framerate)
-        .output(output_file, vcodec='libx264', pix_fmt='yuv420p', fflags='+genpts')
+        .output(output_file, vcodec="libx264", pix_fmt="yuv420p", fflags="+genpts")
         .run(overwrite_output=True, quiet=True)
     )

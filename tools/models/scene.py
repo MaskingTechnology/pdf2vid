@@ -10,8 +10,8 @@ class VoiceOptions:
 @dataclass(frozen=True)
 class FrameOptions:
     source: str
-    start: int
-    end: int
+    start: int | None
+    end: int | None
     duplications: str
     rate: int
 

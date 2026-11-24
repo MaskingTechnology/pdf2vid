@@ -86,7 +86,7 @@ def _generate_chapter(config, chapter_id, scene_id):
 
     if not updated and scene_id == None:
         print(f"✔ CHAPTER {chapter_id} UP-TO-DATE")
-    
+
     return updated
 
 def _generate_video(config):
@@ -117,10 +117,10 @@ def _initialize(config):
 def _assure_folders(config):
 
     if not path_exists(config.folders.cache):
-        
+
         create_folder(config.folders.cache)
         return False
-    
+
     return True
 
 def _update_cache(config):
@@ -129,7 +129,7 @@ def _update_cache(config):
 
     if cached_config == None:
         return True
-    
+
     scenes_changed = cached_config["chapters"] != config.chapters
 
     return scenes_changed
@@ -159,7 +159,7 @@ def _video(config):
     print("⧗ GENERATING VIDEO", end="\r", flush=True)
 
     from ..tasks.stitch_videos import stitch_videos
-    
+
     cache_folder = config.folders.cache
     chapter_keys = config.chapters.keys()
     result_file = config.files.result

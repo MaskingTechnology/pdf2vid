@@ -17,6 +17,6 @@ class FilePaths:
 class Config:
     video: str
     description: str
-    chapters: list[str]
+    chapters: dict[str, str]
     folders: FolderPaths
     files: FilePaths

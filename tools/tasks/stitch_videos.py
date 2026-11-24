@@ -17,12 +17,12 @@ def stitch_videos(input_folder, video_names, output_file):
         stream_pairs.extend([inp.video, inp.audio])
 
     joined = ffmpeg.concat(*stream_pairs, v=1, a=1)
-    joined = joined.filter('setpts', 'PTS-STARTPTS')
+    joined = joined.filter("setpts", "PTS-STARTPTS")
 
     joined.output(
         output_file,
-        vcodec='libx264',
-        acodec='aac',
-        strict='experimental',
-        movflags='+faststart'
+        vcodec="libx264",
+        acodec="aac",
+        strict="experimental",
+        movflags="+faststart"
     ).run(overwrite_output=True, quiet=True)

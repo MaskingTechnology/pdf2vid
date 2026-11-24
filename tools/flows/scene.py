@@ -17,12 +17,12 @@ FRAMES_DEFAULTS = { "start": None, "end": None, "duplications": "", "rate": 10 }
 def generate_scene(chapter_id, scene_id, config_file, output_folder):
 
     config = _create_config(chapter_id, scene_id, config_file, output_folder)
-    
+
     updated = _initialize(config)
 
     if not updated:
         return False
-    
+
     _generate(config)
     _finalize(config)
 
@@ -134,7 +134,7 @@ def _assure_folders(config):
     if not path_exists(config.folders.scene):
         create_folder(config.folders.scene)
         return False
-    
+
     return True
 
 def _update_cache(config):
@@ -143,7 +143,7 @@ def _update_cache(config):
 
     if cached_config == None:
         return True
-    
+
     cached_voice = _create_voice_options(cached_config)
     cached_frames = _create_frame_options(cached_config)
 
@@ -169,15 +169,15 @@ def _update_cache(config):
     if voice_changed:
         remove_file(config.files.voice)
         result_changed = True
-    
+
     if frames_changed:
         remove_folder(config.folders.frames)
         frames_duplications_changed = True
-    
+
     if frames_duplications_changed:
         remove_folder(config.folders.duplications)
         video_changed = True
-    
+
     if video_changed:
         remove_file(config.files.video)
         result_changed = True
@@ -203,10 +203,10 @@ def _voiceover(config):
 
     files = config.files
     options = config.voice
-    
+
     if path_exists(files.voice):
         return
-    
+
     print("  ⧗ Generating voice", end="\r", flush=True)
 
     from ..tasks.generate_voice import generate_voice
@@ -223,7 +223,7 @@ def _frames(config):
 
     if path_exists(folders.frames):
         return
-    
+
     print("  ⧗ Extracting frames", end="\r", flush=True)
 
     create_folder(folders.frames)
@@ -244,7 +244,7 @@ def _duplications(config):
 
     if path_exists(folders.duplications):
         return
-    
+
     print("  ⧗ Duplicating frames", end="\r", flush=True)
 
     create_folder(folders.duplications)
@@ -263,7 +263,7 @@ def _video(config):
 
     if path_exists(files.video):
         return
-    
+
     print("  ⧗ Creating video", end="\r", flush=True)
 
     from ..tasks.create_video import create_video
@@ -278,7 +278,7 @@ def _result(config):
 
     if path_exists(files.result):
         return
-    
+
     print("  ⧗ Combining video and voice", end="\r", flush=True)
 
     from ..tasks.add_audio import add_audio
