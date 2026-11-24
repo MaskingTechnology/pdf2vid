@@ -11,19 +11,20 @@ Simple tool for creating videos from PDF files with AI-generated voice-overs.
 
 ## Requirements
 
-The following tools are required:
+The following tools need to be installed on your machine:
 
 1. [Python version 3.12](https://www.python.org).
-1. [FFmpeg](https://www.ffmpeg.org).
-1. [ImageMagick](https://imagemagick.org).
+1. [HomeBrew](https://brew.sh/).
 
 ### Installation (MacOs)
 
-Install [HomeBrew](https://brew.sh/), and run the following commands in a terminal.
+Run the following commands in a terminal.
 
 ```bash
 brew install ffmpeg poppler
-pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
 ## Usage (MacOs)
