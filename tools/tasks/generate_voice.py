@@ -13,12 +13,23 @@ def generate_voice(text, speed, delay, output_file):
     pipeline = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M")
     generator = pipeline(text, VOICE, speed=speed)
 
-    for index, (graphemes, phonemes, audio) in enumerate(generator):
+    audios = []
 
-        if delay > 0:
-            audio = _add_delay(audio, delay)
+    for graphemes, phonemes, audio in generator:
 
-        soundfile.write(output_file, audio, SAMPLE_RATE)
+        audios.append(audio)
+
+    if not audios:
+        return
+
+    import torch
+
+    full_audio = torch.cat(audios, dim=0)
+
+    if delay > 0:
+        full_audio = _add_delay(full_audio, delay)
+
+    soundfile.write(output_file, full_audio, SAMPLE_RATE)
 
 def _add_delay(audio, duration):
 

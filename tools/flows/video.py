@@ -2,17 +2,20 @@
 from ..models.video import FolderPaths, FilePaths, Config
 
 from ..utils.config import read_config
-from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder
+from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder, remove_file, remove_folder
 
 ### DEFAULTS ##########################
 
 VIDEO_DEFAULT = "Video"
 DESCRIPTION_DEFAULT = ""
-CHAPTERS_DEFAULT = []
+CHAPTERS_DEFAULT = {}
 
 ### PROCESS ##########################
 
 def generate_video(config_file, output_folder, chapter_id, scene_id):
+
+    if scene_id != None and chapter_id == None:
+        raise RuntimeError("Scene requires --chapter")
 
     config = _create_config(config_file, output_folder)
 
@@ -33,6 +36,10 @@ def _create_config(config_file, output_folder):
     video = data.get("video", VIDEO_DEFAULT)
     description = data.get("description", DESCRIPTION_DEFAULT)
     chapters = data.get("chapters", CHAPTERS_DEFAULT)
+
+    if not isinstance(chapters, dict):
+        raise RuntimeError(f"Invalid chapters mapping for video {data.get('video', VIDEO_DEFAULT)} — expected an object of chapter IDs and config files")
+
     folders = _create_folder_paths(config_file, output_folder)
     files = _create_file_paths(config_file, video, folders)
 
@@ -84,10 +91,15 @@ def _generate_chapter(config, chapter_id, scene_id):
 
     updated = generate_chapter(chapter_id, config_file, output_folder, scene_id)
 
-    if not updated and scene_id == None:
-        print(f"✔ CHAPTER {chapter_id} UP-TO-DATE")
+    if not updated and path_exists(config.files.result):
+        if scene_id == None:
+            print(f"✔ CHAPTER {chapter_id} UP-TO-DATE")
+        return False
 
-    return updated
+    _video(config)
+    _finalize(config)
+
+    return True
 
 def _generate_video(config):
 
@@ -95,6 +107,9 @@ def _generate_video(config):
     chapters_updated = _chapters(config)
 
     updated = config_updated or chapters_updated
+
+    if not path_exists(config.files.result):
+        updated = True
 
     if not updated:
         print(f"✔ VIDEO UP-TO-DATE")
@@ -130,9 +145,15 @@ def _update_cache(config):
     if cached_config == None:
         return True
 
-    scenes_changed = cached_config["chapters"] != config.chapters
+    chapters_changed = cached_config.get("chapters", {}) != config.chapters
 
-    return scenes_changed
+    removed_ids = set(cached_config.get("chapters", {})) - set(config.chapters)
+
+    for chapter_id in removed_ids:
+        remove_folder(join_paths(config.folders.cache, chapter_id))
+        remove_file(join_paths(config.folders.cache, f"{chapter_id}.mp4"))
+
+    return chapters_changed
 
 def _chapters(config):
 

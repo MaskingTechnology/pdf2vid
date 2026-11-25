@@ -2,13 +2,13 @@
 from ..models.chapter import FolderPaths, FilePaths, Config
 
 from ..utils.config import read_config
-from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder
+from ..utils.filesystem import get_parent_path, join_paths, path_exists, copy_file, create_folder, remove_file, remove_folder
 
 ### DEFAULTS ##########################
 
 CHAPTER_DEFAULT = "C1"
 DESCRIPTION_DEFAULT = ""
-SCENES_DEFAULT = []
+SCENES_DEFAULT = {}
 
 ### PROCESS ##########################
 
@@ -32,6 +32,10 @@ def _create_config(chapter_id, config_file, output_folder):
 
     description = data.get("description", DESCRIPTION_DEFAULT)
     scenes = data.get("scenes", SCENES_DEFAULT)
+
+    if not isinstance(scenes, dict):
+        raise RuntimeError(f"Invalid scenes mapping for chapter {chapter_id} — expected an object of scene IDs and config files")
+
     folders = _create_folder_paths(config_file, output_folder, chapter_id)
     files = _create_file_paths(config_file, chapter_id, folders)
 
@@ -86,10 +90,14 @@ def _generate_scene(config, scene_id):
 
     updated = generate_scene(chapter_id, scene_id, config_file, output_folder)
 
-    if not updated:
+    if not updated and path_exists(config.files.result):
         print(f"✔ SCENE {chapter_id}:{scene_id} UP-TO-DATE")
+        return False
 
-    return updated
+    _chapter(config)
+    _finalize(config)
+
+    return True
 
 def _generate_chapter(config):
 
@@ -97,6 +105,9 @@ def _generate_chapter(config):
     scenes_updated = _scenes(config)
 
     updated = config_updated or scenes_updated
+
+    if not path_exists(config.files.result):
+        updated = True
 
     if not updated:
         return False
@@ -131,7 +142,13 @@ def _update_cache(config):
     if cached_config == None:
         return True
 
-    scenes_changed = cached_config["scenes"] != config.scenes
+    scenes_changed = cached_config.get("scenes", {}) != config.scenes
+
+    removed_ids = set(cached_config.get("scenes", {})) - set(config.scenes)
+
+    for scene_id in removed_ids:
+        remove_folder(join_paths(config.folders.chapter, "scenes", scene_id))
+        remove_file(join_paths(config.folders.chapter, f"{scene_id}.mp4"))
 
     return scenes_changed
 

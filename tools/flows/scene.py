@@ -18,6 +18,17 @@ def generate_scene(chapter_id, scene_id, config_file, output_folder):
 
     config = _create_config(chapter_id, scene_id, config_file, output_folder)
 
+    if not config.voice.text:
+        raise RuntimeError(f"Missing voice text for scene {chapter_id}:{scene_id}!")
+
+    if not config.frames.source:
+        raise RuntimeError(f"Missing frames source for scene {chapter_id}:{scene_id}!")
+
+    pdf_file = join_paths(config.folders.config, config.frames.source)
+
+    if not path_exists(pdf_file):
+        raise RuntimeError(f"Frames source not found for scene {chapter_id}:{scene_id}: {pdf_file}")
+
     updated = _initialize(config)
 
     if not updated:
@@ -37,8 +48,8 @@ def _read_config_data(config_file):
     if data == None:
         return None
 
-    data["voice"] = VOICE_DEFAULTS | data["voice"]
-    data["frames"] = FRAMES_DEFAULTS | data["frames"]
+    data["voice"] = VOICE_DEFAULTS | (data.get("voice") or {})
+    data["frames"] = FRAMES_DEFAULTS | (data.get("frames") or {})
 
     return data
 
@@ -124,10 +135,62 @@ def _initialize(config):
 
     already_existed = _assure_folders(config)
 
-    if already_existed:
-        return _update_cache(config)
+    if not already_existed:
+        return True
 
-    return True
+    updated = _update_cache(config)
+
+    missing = _missing_artifacts(config)
+
+    if missing:
+        _delete_dependents(config, missing)
+        return True
+
+    return updated
+
+def _missing_artifacts(config):
+
+    files = config.files
+    folders = config.folders
+
+    missing = []
+
+    if not path_exists(files.voice):
+        missing.append("voice")
+
+    if not path_exists(folders.frames):
+        missing.append("frames")
+
+    if not path_exists(folders.duplications):
+        missing.append("duplications")
+
+    if not path_exists(files.video):
+        missing.append("video")
+
+    if not path_exists(files.result):
+        missing.append("result")
+
+    return missing
+
+def _delete_dependents(config, missing):
+
+    files = config.files
+    folders = config.folders
+
+    if "voice" in missing:
+        remove_file(files.result)
+
+    if "frames" in missing:
+        remove_folder(folders.duplications)
+        remove_file(files.video)
+        remove_file(files.result)
+
+    if "duplications" in missing:
+        remove_file(files.video)
+        remove_file(files.result)
+
+    if "video" in missing:
+        remove_file(files.result)
 
 def _assure_folders(config):
 
@@ -278,6 +341,9 @@ def _result(config):
 
     if path_exists(files.result):
         return
+
+    if not path_exists(files.voice):
+        _voiceover(config)
 
     print("  ⧗ Combining video and voice", end="\r", flush=True)
 
